@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<items version="2" >
+
+    <item
+        is-multidex="true"
+        jar="C:\Users\Development VMachine\Documents\Android Projects\Curso Android Youtube\ServiciosWeb\app\build\intermediates\incremental-runtime-classes\debug\instant-run.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="c82741bc129dd5f99f11a4ab8666ae24262053b6">
+        <dex dex="C:\Users\Development VMachine\Documents\Android Projects\Curso Android Youtube\ServiciosWeb\app\build\intermediates\transforms\dex\debug\folders\1000\10000\instant-run_a8179977db8a9bf3849ff156e969b7c175d06bfe\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\Development VMachine\Documents\Android Projects\Curso Android Youtube\ServiciosWeb\app\build\intermediates\incremental-classes\debug\instant-run-bootstrap.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="76252981204a1b33e2bb94519d33893948f2af82">
+        <dex dex="C:\Users\Development VMachine\Documents\Android Projects\Curso Android Youtube\ServiciosWeb\app\build\intermediates\transforms\dex\debug\folders\1000\10000\instant-run-bootstrap_da470d51456d08ab6aad3e18a09a186cd65a3256\classes.dex" />
+    </item>
+
+</items>
