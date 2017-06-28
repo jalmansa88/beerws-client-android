@@ -72,4 +72,16 @@ public class Cerveza {
         this.alc = alc;
     }
 
+    @Override
+    public String toString() {
+        return "Cerveza{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", country='" + country + '\'' +
+                ", type='" + type + '\'' +
+                ", family='" + family + '\'' +
+                ", alc=" + alc +
+                '}';
+    }
 }

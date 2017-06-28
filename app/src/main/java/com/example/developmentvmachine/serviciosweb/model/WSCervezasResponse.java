@@ -48,4 +48,13 @@ public class WSCervezasResponse {
     public void setCervezas(List<Cerveza> cervezas) {
         this.cervezasList = cervezas;
     }
+
+    @Override
+    public String toString() {
+        return "WSCervezasResponse{" +
+                "status='" + status + '\'' +
+                ", mensaje='" + mensaje + '\'' +
+                ", cervezasList=" + cervezasList +
+                '}';
+    }
 }

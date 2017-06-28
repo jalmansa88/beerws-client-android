@@ -1,8 +1,6 @@
 package com.example.developmentvmachine.serviciosweb;
 
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.Menu;
@@ -14,6 +12,7 @@ import android.widget.TextView;
 
 import com.example.developmentvmachine.serviciosweb.utils.Constants;
 import com.example.developmentvmachine.serviciosweb.utils.HttpConnection;
+import com.example.developmentvmachine.serviciosweb.utils.HttpGet;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
 
@@ -46,6 +45,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     TextView resultado;
 
     HttpConnection hiloConexion;
+    HttpGet httpGet;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,14 +73,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         borrar.setOnClickListener(this);
 
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, R.string.floating_button_message, Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+//        fab.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Snackbar.make(view, R.string.floating_button_message, Snackbar.LENGTH_LONG)
+//                        .setAction("Action", null).show();
+//            }
+//        });
     }
 
     @Override
@@ -136,7 +136,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.actualizar:
                 hiloConexion = new HttpConnection(this);
-                hiloConexion.execute(Constants.UPDATE);
+                hiloConexion.execute(Constants.UPDATE,
+                        identificador.getText().toString(),
+                        nombre.getText().toString(),
+                        description.getText().toString(),
+                        pais.getText().toString(),
+                        tipo.getText().toString(),
+                        familia.getText().toString(),
+                        alc.getText().toString()
+                        );
 
                 break;
             case R.id.borrar:
@@ -147,8 +155,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             default:
 
                 break;
-
-            //default actions
         }
     }
 
