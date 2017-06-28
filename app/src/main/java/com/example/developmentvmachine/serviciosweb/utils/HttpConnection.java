@@ -4,12 +4,13 @@ import android.app.Activity;
 import android.os.AsyncTask;
 import android.text.TextUtils;
 import android.util.Log;
+import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.developmentvmachine.serviciosweb.R;
 import com.example.developmentvmachine.serviciosweb.model.Cerveza;
 import com.example.developmentvmachine.serviciosweb.model.WSCervezasResponse;
-import com.fasterxml.jackson.core.io.DataOutputAsStream;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.apache.commons.io.IOUtils;
@@ -19,7 +20,6 @@ import org.json.JSONObject;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -34,16 +34,7 @@ import java.util.List;
  * Created by Development VMachine on 24/04/2017.
  */
 
-public class HttpConnection extends AsyncTask<String, Void, String> {
-
-//    private static final String GET_ALL = "getAll";
-//    private static final String GET_BY_ID = "getById";
-//    private static final String INSERT = "insert";
-//    private static final String UPDATE = "update";
-//    private static final String DELETE = "delete";
-
-//    private static final String STATUS_OK = "1";
-//    private static final String STATUS_NOK = "2";
+public class HttpConnection extends AsyncTask<String, Void, WSCervezasResponse> {
 
     private Activity context;
 
@@ -54,20 +45,20 @@ public class HttpConnection extends AsyncTask<String, Void, String> {
     }
 
     @Override
-    protected String doInBackground(String... params) {
+    protected WSCervezasResponse doInBackground(String... params) {
 
         String urlString = Constants.BASE_URL + params[0];
         URL url = null;
-        DataOutputAsStream printOutput;
-        DataInputStream input;
-        String output = "";
+        WSCervezasResponse wsResponse = null;
+        HttpURLConnection connection = null;
+        BufferedReader reader = null;
 
         switch (params[0]){
             case Constants.GET_ALL:
                 Log.i(TAG, "GetAll - ini");
                 try {
                     url = new URL(urlString);
-                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                    connection = (HttpURLConnection) url.openConnection();
 
                     connection.setRequestProperty("User-Agent", "Mozilla/5.0" +
                             " (Linux; Android 1.5; es-ES) Ejemplo HTTP");
@@ -77,10 +68,10 @@ public class HttpConnection extends AsyncTask<String, Void, String> {
                     if (responseCode != null && responseCode == HttpURLConnection.HTTP_OK){
 
                         InputStream in = new BufferedInputStream(connection.getInputStream());
-                        BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+                        reader = new BufferedReader(new InputStreamReader(in));
 
                         ObjectMapper mapper = new ObjectMapper();
-                        WSCervezasResponse wsResponse = mapper.readValue(IOUtils.toString(reader), WSCervezasResponse.class);
+                        wsResponse = mapper.readValue(IOUtils.toString(reader), WSCervezasResponse.class);
 
                         Log.i(TAG, "getAll response: " + wsResponse.toString());
 
@@ -88,29 +79,39 @@ public class HttpConnection extends AsyncTask<String, Void, String> {
                         List<Cerveza> cervezas = wsResponse.getCervezas();
 
                         if(Constants.STATUS_OK.equals(statusResponse)){
-
-                            output = printCervezas(output, cervezas);
-
-                        }else if (Constants.STATUS_NOK.equals(statusResponse)){
-                            output = wsResponse.getMensaje();
+                            //output = printCervezas(output, cervezas);
+                            wsResponse.setMensaje("Mostrando lista completa de cervezas");
+                        }else if(Constants.STATUS_NOK.equals(wsResponse.getStatus())) {
+                            wsResponse.setMensaje("Error de conexion");
+                            Log.i(TAG, wsResponse.getMensaje());
                         }
-
-                        output = "Resultados: " + output;
                     }
 
                 } catch (MalformedURLException e) {
                     Log.e(TAG, e.getMessage(), e);
                 } catch (IOException e) {
                     Log.e(TAG, e.getMessage(), e);
+                } finally {
+                    if (connection != null) {
+                        connection.disconnect();
+                    }
+                    if (reader != null) {
+                        try {
+                            reader.close();
+                        } catch (IOException e) {
+                            Log.e(TAG, "Error closing stream", e);
+                        }
+                    }
                 }
                 Log.i(TAG, "GetAll - end");
                 break;
 
             case Constants.GET_BY_ID:
                 Log.i(TAG, "Get by id - ini");
+
                 try {
                     url = new URL(urlString+params[1]);
-                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                    connection = (HttpURLConnection) url.openConnection();
 
                     connection.setRequestProperty("User-Agent", "Mozilla/5.0" +
                             " (Linux; Android 1.5; es-ES) Ejemplo HTTP");
@@ -120,23 +121,22 @@ public class HttpConnection extends AsyncTask<String, Void, String> {
                     if (httpResponseCode != null && httpResponseCode == HttpURLConnection.HTTP_OK){
 
                         InputStream in = new BufferedInputStream(connection.getInputStream());
-                        BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+                        reader = new BufferedReader(new InputStreamReader(in));
 
                         ObjectMapper mapper = new ObjectMapper();
-                        WSCervezasResponse wsResponse = mapper.readValue(IOUtils.toString(reader), WSCervezasResponse.class);
+                        wsResponse = mapper.readValue(IOUtils.toString(reader), WSCervezasResponse.class);
 
                         if(Constants.STATUS_OK.equals(wsResponse.getStatus())){
                             List<Cerveza> cervezas = wsResponse.getCervezas();
 
                             if (cervezas != null && cervezas.size() > 1){
-                                return "Mas de un registro para ID " + cervezas.get(0).getId();
+                                wsResponse.setMensaje("Mas de un registro para ID " + cervezas.get(0).getId());
+                            }else{
+                                wsResponse.setMensaje("Beer found!!");
                             }
-
-                            output = printCervezas(output, cervezas);
-
-                        }else if (Constants.STATUS_NOK.equals(wsResponse.getStatus())){
-                            output = wsResponse.getMensaje();
-                            Log.e(TAG, "Error: " + output);
+                        } else if(Constants.STATUS_NOK.equals(wsResponse.getStatus())) {
+                            wsResponse.setMensaje("Beear not found :(");
+                            Log.i(TAG, wsResponse.getMensaje());
                         }
 
                     }else{
@@ -145,11 +145,21 @@ public class HttpConnection extends AsyncTask<String, Void, String> {
 
                 } catch (MalformedURLException e) {
                     Log.e(TAG, e.getMessage(), e);
-                    output = "Error : " + e.getMessage();
                 } catch (IOException e) {
                     Log.e(TAG, e.getMessage(), e);
-                    output = "Error : " + e.getMessage();
+                } finally {
+                    if (connection != null) {
+                        connection.disconnect();
+                    }
+                    if (reader != null) {
+                        try {
+                            reader.close();
+                        } catch (IOException e) {
+                            Log.e(TAG, "Error closing stream", e);
+                        }
+                    }
                 }
+
                 Log.i(TAG, "Get by id - end");
                 break;
 
@@ -157,7 +167,7 @@ public class HttpConnection extends AsyncTask<String, Void, String> {
                 Log.i(TAG, "Insert - ini");
                 try {
                     url = new URL(urlString);
-                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                    connection = (HttpURLConnection) url.openConnection();
                     fillConnection(connection);
                     connection.connect();
 
@@ -175,43 +185,107 @@ public class HttpConnection extends AsyncTask<String, Void, String> {
                     if (httpResponseCode != null && httpResponseCode == HttpURLConnection.HTTP_OK){
 
                         InputStream in = new BufferedInputStream(connection.getInputStream());
-                        BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+                        reader = new BufferedReader(new InputStreamReader(in));
 
                         ObjectMapper mapper = new ObjectMapper();
-                        WSCervezasResponse wsResponse = mapper.readValue(IOUtils.toString(reader), WSCervezasResponse.class);
+                        wsResponse = mapper.readValue(IOUtils.toString(reader), WSCervezasResponse.class);
 
                         Log.i(TAG, "response: " + wsResponse.toString());
 
                         if(Constants.STATUS_OK.equals(wsResponse.getStatus())){
-                            output = "Cerveza insertada correctamente";
+                            wsResponse.setMensaje("Cerveza insertada correctamente");
                         }else if(Constants.STATUS_NOK.equals(wsResponse.getStatus())){
-                            output = "Error insertando alumno: " + wsResponse.getMensaje();
+                            wsResponse.setMensaje("Error insertando cerveza: " + wsResponse.getMensaje());
                             Log.i(TAG, wsResponse.getMensaje());
                         }
                     }
 
                 } catch (MalformedURLException e) {
                     Log.e(TAG, e.getMessage(), e);
-                    output = "Error : " + e.getMessage();
                 } catch (IOException e) {
                     Log.e(TAG, e.getMessage(), e);
-                    output = "Error : " + e.getMessage();
                 } catch (JSONException e) {
                     Log.e(TAG, e.getMessage(), e);
-                    output = "Error : " + e.getMessage();
+                } finally {
+                    if (connection != null) {
+                        connection.disconnect();
+                    }
+                    if (reader != null) {
+                        try {
+                            reader.close();
+                        } catch (IOException e) {
+                            Log.e(TAG, "Error closing stream", e);
+                        }
+                    }
                 }
 
                 Log.i(TAG, "Insert - end");
                 break;
 
             case Constants.UPDATE:
+                Log.i(TAG, "Update - ini");
+                try {
+                    url = new URL(urlString);
+                    connection = (HttpURLConnection) url.openConnection();
+                    fillConnection(connection);
+                    connection.connect();
+
+                    JSONObject jsonParam = new JSONObject();
+                    fillJsonParamsToUpdate(jsonParam, params);
+
+                    OutputStream os = connection.getOutputStream();
+                    BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
+                    writer.write(jsonParam.toString());
+                    writer.flush();
+                    writer.close();
+
+                    Integer httpResponseCode = connection.getResponseCode();
+
+                    if (httpResponseCode != null && httpResponseCode == HttpURLConnection.HTTP_OK){
+
+                        InputStream in = new BufferedInputStream(connection.getInputStream());
+                        reader = new BufferedReader(new InputStreamReader(in));
+
+                        ObjectMapper mapper = new ObjectMapper();
+                        wsResponse = mapper.readValue(IOUtils.toString(reader), WSCervezasResponse.class);
+
+                        Log.i(TAG, "response: " + wsResponse.toString());
+
+                        if(Constants.STATUS_OK.equals(wsResponse.getStatus())){
+                            wsResponse.setMensaje("Cerveza actualizada correctamente");
+                        }else if(Constants.STATUS_NOK.equals(wsResponse.getStatus())){
+                            wsResponse.setMensaje("Error actualizando cerveza: " + wsResponse.getMensaje());
+                            Log.i(TAG, wsResponse.getMensaje());
+                        }
+                    }
+
+                } catch (MalformedURLException e) {
+                    Log.e(TAG, e.getMessage(), e);
+                } catch (IOException e) {
+                    Log.e(TAG, e.getMessage(), e);
+                } catch (JSONException e) {
+                    Log.e(TAG, e.getMessage(), e);
+                } finally {
+                    if (connection != null) {
+                        connection.disconnect();
+                    }
+                    if (reader != null) {
+                        try {
+                            reader.close();
+                        } catch (IOException e) {
+                            Log.e(TAG, "Error closing stream", e);
+                        }
+                    }
+                }
+
+                Log.i(TAG, "Update - end");
                 break;
 
             case Constants.DELETE:
 
                 try {
                     url = new URL(urlString);
-                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                    connection = (HttpURLConnection) url.openConnection();
                     fillConnection(connection);
                     connection.connect();
 
@@ -229,33 +303,83 @@ public class HttpConnection extends AsyncTask<String, Void, String> {
                     if (httpResponseCode != null && httpResponseCode == HttpURLConnection.HTTP_OK){
 
                         InputStream in = new BufferedInputStream(connection.getInputStream());
-                        BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+                        reader = new BufferedReader(new InputStreamReader(in));
 
                         ObjectMapper mapper = new ObjectMapper();
-                        WSCervezasResponse wsResponse = mapper.readValue(IOUtils.toString(reader), WSCervezasResponse.class);
+                        wsResponse = mapper.readValue(IOUtils.toString(reader), WSCervezasResponse.class);
 
                         String statusResponse = wsResponse.getStatus();
 
                         if(Constants.STATUS_OK.equals(statusResponse)){
-                           output = "Cerveza eliminada correctamente";
+                            wsResponse.setMensaje("Cerveza eliminada correctamente");
                         }else if (Constants.STATUS_NOK.equals(statusResponse)){
-                            output = wsResponse.getMensaje();
+                            wsResponse.setMensaje("Error de conexion eliminando cerveza");
                         }
                     }
 
                 } catch (MalformedURLException e) {
                     Log.e(TAG, e.getMessage(), e);
-                    output = "URLException: " + e.getMessage();
                 } catch (IOException e) {
                     Log.e(TAG, e.getMessage(), e);
-                    output = "IOException: " + e.getMessage();
                 } catch (JSONException e) {
                     Log.e(TAG, e.getMessage(), e);
-                    output = "JSONException: " + e.getMessage();
+                } finally {
+                    if (connection != null) {
+                        connection.disconnect();
+                    }
+                    if (reader != null) {
+                        try {
+                            reader.close();
+                        } catch (IOException e) {
+                            Log.e(TAG, "Error closing stream", e);
+                        }
+                    }
                 }
                 break;
         }
 
+        return wsResponse;
+    }
+
+    @Override
+    protected void onPreExecute() {
+        TextView txtView = (TextView) context.findViewById(R.id.tvResultado);
+        txtView.setText("");
+    }
+
+    @Override
+    protected void onPostExecute(WSCervezasResponse wsResponse){
+        Toast toast = Toast.makeText(context, wsResponse.getMensaje(), Toast.LENGTH_SHORT);
+        toast.show();
+
+        if (wsResponse.getCervezas() != null && wsResponse.getCervezas().size() > 1){
+            TextView txtView = (TextView) context.findViewById(R.id.tvResultado);
+            txtView.setText(printCervezasTextView(wsResponse.getCervezas()));
+        }else if(wsResponse.getCervezas() != null && wsResponse.getCervezas().size() > 0){
+            fillBeerFields(wsResponse.getCervezas().get(0));
+        }
+    }
+
+    @Override
+    protected void onProgressUpdate(Void... values) {
+        super.onProgressUpdate(values);
+    }
+
+    @Override
+    protected void onCancelled(WSCervezasResponse s) {
+        super.onCancelled(s);
+    }
+
+    private String printCervezasTextView(List<Cerveza> cervezas) {
+        String output = "";
+        for (Cerveza cerveza : cervezas) {
+            output += "ID: " + cerveza.getId() + "\n" +
+                    "Nombre: " + cerveza.getName() + "\n" +
+                    "Description: " +cerveza.getDescription() + "\n" +
+                    "Familia: " + cerveza.getFamily() + "\n" +
+                    "Pais: " + cerveza.getCountry() + "\n" +
+                    "Alcohol: " + cerveza.getAlc() + "%" + "\n";
+        }
         return output;
     }
 
@@ -267,8 +391,24 @@ public class HttpConnection extends AsyncTask<String, Void, String> {
         connection.setRequestProperty("Accept", "application/json");
     }
 
-    private void fillJsonParams(JSONObject jsonParam, String[] params) throws JSONException {
+    private void fillBeerFields(Cerveza beer){
+        EditText id = (EditText) context.findViewById(R.id.etId);
+        EditText nombre = (EditText) context.findViewById(R.id.etNombre);
+        EditText description = (EditText) context.findViewById(R.id.etDescription);
+        EditText pais = (EditText) context.findViewById(R.id.etCountry);
+        EditText familia = (EditText) context.findViewById(R.id.etFamily);
+        EditText tipo = (EditText) context.findViewById(R.id.etType);
+        EditText alc = (EditText) context.findViewById(R.id.etAlc);
+        id.setText(Integer.toString(beer.getId()));
+        nombre.setText(beer.getName());
+        description.setText(beer.getDescription());
+        pais.setText(beer.getCountry());
+        familia.setText(beer.getFamily());
+        tipo.setText(beer.getType());
+        alc.setText(beer.getAlc().toString());
+    }
 
+    private void fillJsonParams(JSONObject jsonParam, String[] params) throws JSONException {
         if(!TextUtils.isEmpty(params[1])) {
             jsonParam.put("name", params[1]);
         }
@@ -288,40 +428,28 @@ public class HttpConnection extends AsyncTask<String, Void, String> {
             jsonParam.put("alc", params[6]);
         }
     }
-
-    @Override
-    protected void onPreExecute() {
-        TextView txtView = (TextView) context.findViewById(R.id.tvResultado);
-        txtView.setText("");
-        //super.onPreExecute();
-    }
-
-    @Override
-    protected void onPostExecute(String s){
-        TextView txtView = (TextView) context.findViewById(R.id.tvResultado);
-        txtView.setText(s);
-    }
-
-    @Override
-    protected void onProgressUpdate(Void... values) {
-        super.onProgressUpdate(values);
-    }
-
-    @Override
-    protected void onCancelled(String s) {
-        super.onCancelled(s);
-    }
-
-    private String printCervezas(String output, List<Cerveza> cervezas) {
-        for (Cerveza cerveza : cervezas) {
-            output += "ID: " + cerveza.getId() + "\n" +
-                    "Nombre: " + cerveza.getName() + "\n" +
-                    "Description: " +cerveza.getDescription() + "\n" +
-                    "Familia: " + cerveza.getFamily() + "\n" +
-                    "Pais: " + cerveza.getCountry() + "\n" +
-                    "Alcohol: " + cerveza.getAlc() + "%" + "\n";
+    private void fillJsonParamsToUpdate(JSONObject jsonParam, String[] params) throws JSONException {
+        if(!TextUtils.isEmpty(params[1])) {
+            jsonParam.put("id", params[1]);
         }
-        return output;
+        if(!TextUtils.isEmpty(params[2])) {
+            jsonParam.put("name", params[2]);
+        }
+        if(!TextUtils.isEmpty(params[3])) {
+            jsonParam.put("description", params[3]);
+        }
+        if(!TextUtils.isEmpty(params[4])) {
+            jsonParam.put("country", params[4]);
+        }
+        if(!TextUtils.isEmpty(params[5])) {
+            jsonParam.put("type", params[5]);
+        }
+        if(!TextUtils.isEmpty(params[6])) {
+            jsonParam.put("family", params[6]);
+        }
+        if(!TextUtils.isEmpty(params[7])) {
+            jsonParam.put("alc", params[7]);
+        }
     }
 
 }
