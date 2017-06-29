@@ -3,31 +3,20 @@ package com.example.developmentvmachine.serviciosweb;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.text.method.ScrollingMovementMethod;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.developmentvmachine.serviciosweb.utils.Constants;
 import com.example.developmentvmachine.serviciosweb.utils.HttpConnection;
 import com.example.developmentvmachine.serviciosweb.utils.HttpGet;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
-
-//    private static String GET_ALL_URL = "http://softcode.esy.es/getAll.php";
-//    private static String GET_BY_ID_URL = "http://softcode.esy.es/getCervezaById.php?id=";
-//    private static String INSERT_URL = "http://softcode.esy.es/insertCerveza.php";
-//    private static String UPDATE_URL = "http://softcode.esy.es/updateCerveza.php";
-//    private static String DELETE_URL = "http://softcode.esy.es/deleteCerveza.php";
-
-//    private static String GET_ALL = "getAll";
-//    private static String GET_BY_ID = "getById";
-//    private static String INSERT = "insert";
-//    private static String UPDATE = "update";
-//    private static String DELETE = "delete";
-
 
     Button consultar;
     Button constarId;
@@ -65,6 +54,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         tipo = (EditText)findViewById(R.id.etType);
         alc = (EditText)findViewById(R.id.etAlc);
         resultado = (TextView) findViewById(R.id.tvResultado);
+        resultado.setMovementMethod(new ScrollingMovementMethod());
 
         consultar.setOnClickListener(this);
         constarId.setOnClickListener(this);
@@ -119,37 +109,51 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     hiloConexion = new HttpConnection(this);
                     hiloConexion.execute(Constants.GET_BY_ID, identificador.getText().toString());
                 }else{
-                    resultado.setText("Introduce ID para consultar!!");
+                    Toast toast = Toast.makeText(this, "Introduce ID para consultar", Toast.LENGTH_SHORT);
+                    toast.show();
                 }
                 break;
             case R.id.insertar:
-                hiloConexion = new HttpConnection(this);
-                hiloConexion.execute(Constants.INSERT,
-                        nombre.getText().toString(),
-                        description.getText().toString(),
-                        pais.getText().toString(),
-                        tipo.getText().toString(),
-                        familia.getText().toString(),
-                        alc.getText().toString()
-                );
-
+                if (checkValuesForInserAndUpdate(identificador.getText().toString(), nombre.getText().toString())){
+                    hiloConexion = new HttpConnection(this);
+                    hiloConexion.execute(Constants.INSERT,
+                            nombre.getText().toString(),
+                            description.getText().toString(),
+                            pais.getText().toString(),
+                            tipo.getText().toString(),
+                            familia.getText().toString(),
+                            alc.getText().toString()
+                    );
+                }else{
+                    Toast toast = Toast.makeText(this, "ID y Nombre no pueden ser nulos!", Toast.LENGTH_SHORT);
+                    toast.show();
+                }
                 break;
             case R.id.actualizar:
-                hiloConexion = new HttpConnection(this);
-                hiloConexion.execute(Constants.UPDATE,
-                        identificador.getText().toString(),
-                        nombre.getText().toString(),
-                        description.getText().toString(),
-                        pais.getText().toString(),
-                        tipo.getText().toString(),
-                        familia.getText().toString(),
-                        alc.getText().toString()
-                        );
-
+                if (checkValuesForInserAndUpdate(identificador.getText().toString(), nombre.getText().toString())){
+                    hiloConexion = new HttpConnection(this);
+                    hiloConexion.execute(Constants.UPDATE,
+                            identificador.getText().toString(),
+                            nombre.getText().toString(),
+                            description.getText().toString(),
+                            pais.getText().toString(),
+                            tipo.getText().toString(),
+                            familia.getText().toString(),
+                            alc.getText().toString()
+                    );
+                }else {
+                    Toast toast = Toast.makeText(this, "ID y Nombre no pueden ser nulos!", Toast.LENGTH_SHORT);
+                    toast.show();
+                }
                 break;
             case R.id.borrar:
-                hiloConexion = new HttpConnection(this);
-                hiloConexion.execute(Constants.DELETE, identificador.getText().toString());
+                if (checkIdValue(identificador.getText().toString())) {
+                    hiloConexion = new HttpConnection(this);
+                    hiloConexion.execute(Constants.DELETE, identificador.getText().toString());
+                }else{
+                    Toast toast = Toast.makeText(this, "Introduce ID del registro a eliminar", Toast.LENGTH_SHORT);
+                    toast.show();
+                }
 
                 break;
             default:
@@ -163,10 +167,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             return false;
         }
         Integer id = Integer.parseInt(st);
-        if (id == null || id < 0){
-            return false;
-        }
-        return true;
+        return id > 0;
+    }
+
+    private boolean checkValuesForInserAndUpdate(String id, String name){
+        return !TextUtils.isEmpty(id) && !TextUtils.isEmpty(name);
     }
 
 }

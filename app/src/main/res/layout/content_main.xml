@@ -64,12 +64,12 @@
 
         <EditText
             android:id="@+id/etId"
-            android:layout_width="wrap_content"
+            android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:ems="10"
             android:hint="i.e.: 6"
-            android:maxLength="4"
-            android:inputType="number" />
+            android:inputType="number"
+            android:maxLength="4" />
 
     </LinearLayout>
 
@@ -86,12 +86,12 @@
 
         <EditText
             android:id="@+id/etNombre"
-            android:layout_width="wrap_content"
+            android:layout_width="150dp"
             android:layout_height="wrap_content"
             android:ems="10"
             android:hint="i.e.: Alhambra"
-            android:maxLength="20"
-            android:inputType="textPersonName" />
+            android:inputType="textPersonName"
+            android:maxLength="20" />
 
     </LinearLayout>
 
@@ -108,12 +108,12 @@
 
         <EditText
             android:id="@+id/etDescription"
-            android:layout_width="wrap_content"
+            android:layout_width="300dp"
             android:layout_height="wrap_content"
             android:ems="10"
             android:hint="i.e.: Southern spanish beer"
-            android:maxLength="50"
-            android:inputType="textPersonName" />
+            android:inputType="textPersonName"
+            android:maxLength="50" />
 
     </LinearLayout>
 
@@ -130,12 +130,12 @@
 
         <EditText
             android:id="@+id/etCountry"
-            android:layout_width="wrap_content"
+            android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:ems="10"
-            android:maxLength="2"
             android:hint="i.e.: ES"
-            android:inputType="textPersonName" />
+            android:inputType="textPersonName"
+            android:maxLength="2" />
 
     </LinearLayout>
 
@@ -152,7 +152,7 @@
 
         <EditText
             android:id="@+id/etType"
-            android:layout_width="wrap_content"
+            android:layout_width="160dp"
             android:layout_height="wrap_content"
             android:ems="10"
             android:maxLength="20"
@@ -174,12 +174,12 @@
 
         <EditText
             android:id="@+id/etFamily"
-            android:layout_width="match_parent"
+            android:layout_width="160dp"
             android:layout_height="wrap_content"
             android:ems="10"
-            android:maxLength="50"
             android:hint="i.e.: Special"
-            android:inputType="textPersonName" />
+            android:inputType="textPersonName"
+            android:maxLength="50" />
 
     </LinearLayout>
 
@@ -196,24 +196,30 @@
 
         <EditText
             android:id="@+id/etAlc"
-            android:layout_width="match_parent"
+            android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:ems="10"
-            android:maxLength="4"
             android:hint="i.e.: 5.6"
-            android:inputType="numberDecimal" />
+            android:inputType="numberDecimal"
+            android:maxLength="4" />
 
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="horizontal">
 
         <TextView
             android:id="@+id/tvResultado"
+            android:layout_width="192dp"
+            android:layout_height="155dp"
+            android:scrollbars="vertical" />
+
+        <ImageView
+            android:id="@+id/ivImagen"
             android:layout_width="match_parent"
-            android:layout_height="334dp" />
+            android:layout_height="match_parent" />
 
     </LinearLayout>
 

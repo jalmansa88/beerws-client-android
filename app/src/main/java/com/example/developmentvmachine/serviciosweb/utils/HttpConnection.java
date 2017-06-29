@@ -1,10 +1,13 @@
 package com.example.developmentvmachine.serviciosweb.utils;
 
 import android.app.Activity;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,19 +29,23 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 
 /**
  * Created by Development VMachine on 24/04/2017.
+ *
+ * Http connection class to get the Beer data from DB
+ *
  */
 
 public class HttpConnection extends AsyncTask<String, Void, WSCervezasResponse> {
 
     private Activity context;
+    Bitmap bitmap = null;
 
-    String TAG = getClass().getSimpleName();
+
+    private final String TAG = getClass().getSimpleName();
 
     public HttpConnection(Activity context){
         this.context = context;
@@ -48,7 +55,7 @@ public class HttpConnection extends AsyncTask<String, Void, WSCervezasResponse> 
     protected WSCervezasResponse doInBackground(String... params) {
 
         String urlString = Constants.BASE_URL + params[0];
-        URL url = null;
+        URL url;
         WSCervezasResponse wsResponse = null;
         HttpURLConnection connection = null;
         BufferedReader reader = null;
@@ -65,7 +72,7 @@ public class HttpConnection extends AsyncTask<String, Void, WSCervezasResponse> 
 
                     Integer responseCode = connection.getResponseCode();
 
-                    if (responseCode != null && responseCode == HttpURLConnection.HTTP_OK){
+                    if (responseCode == HttpURLConnection.HTTP_OK){
 
                         InputStream in = new BufferedInputStream(connection.getInputStream());
                         reader = new BufferedReader(new InputStreamReader(in));
@@ -76,7 +83,6 @@ public class HttpConnection extends AsyncTask<String, Void, WSCervezasResponse> 
                         Log.i(TAG, "getAll response: " + wsResponse.toString());
 
                         String statusResponse = wsResponse.getStatus();
-                        List<Cerveza> cervezas = wsResponse.getCervezas();
 
                         if(Constants.STATUS_OK.equals(statusResponse)){
                             //output = printCervezas(output, cervezas);
@@ -86,9 +92,6 @@ public class HttpConnection extends AsyncTask<String, Void, WSCervezasResponse> 
                             Log.i(TAG, wsResponse.getMensaje());
                         }
                     }
-
-                } catch (MalformedURLException e) {
-                    Log.e(TAG, e.getMessage(), e);
                 } catch (IOException e) {
                     Log.e(TAG, e.getMessage(), e);
                 } finally {
@@ -118,7 +121,7 @@ public class HttpConnection extends AsyncTask<String, Void, WSCervezasResponse> 
 
                     Integer httpResponseCode = connection.getResponseCode();
 
-                    if (httpResponseCode != null && httpResponseCode == HttpURLConnection.HTTP_OK){
+                    if (httpResponseCode == HttpURLConnection.HTTP_OK){
 
                         InputStream in = new BufferedInputStream(connection.getInputStream());
                         reader = new BufferedReader(new InputStreamReader(in));
@@ -133,9 +136,17 @@ public class HttpConnection extends AsyncTask<String, Void, WSCervezasResponse> 
                                 wsResponse.setMensaje("Mas de un registro para ID " + cervezas.get(0).getId());
                             }else{
                                 wsResponse.setMensaje("Beer found!!");
+                                if (wsResponse.getCervezas().get(0).getImagePath() != null){
+                                    URL imageUrl = new URL(Constants.BASE_URL + "/" + wsResponse.getCervezas().get(0).getImagePath());
+                                    HttpURLConnection imageConnection = (HttpURLConnection) imageUrl.openConnection();
+                                    imageConnection.connect();
+                                    bitmap = BitmapFactory.decodeStream(imageConnection.getInputStream());
+                                } else {
+                                    bitmap = BitmapFactory.decodeResource(context.getResources(), android.R.drawable.ic_delete);
+                                }
                             }
                         } else if(Constants.STATUS_NOK.equals(wsResponse.getStatus())) {
-                            wsResponse.setMensaje("Beear not found :(");
+                            wsResponse.setMensaje("Beer not found :(");
                             Log.i(TAG, wsResponse.getMensaje());
                         }
 
@@ -143,8 +154,6 @@ public class HttpConnection extends AsyncTask<String, Void, WSCervezasResponse> 
                         Log.e(TAG, "Connection error");
                     }
 
-                } catch (MalformedURLException e) {
-                    Log.e(TAG, e.getMessage(), e);
                 } catch (IOException e) {
                     Log.e(TAG, e.getMessage(), e);
                 } finally {
@@ -182,7 +191,7 @@ public class HttpConnection extends AsyncTask<String, Void, WSCervezasResponse> 
 
                     Integer httpResponseCode = connection.getResponseCode();
 
-                    if (httpResponseCode != null && httpResponseCode == HttpURLConnection.HTTP_OK){
+                    if (httpResponseCode == HttpURLConnection.HTTP_OK){
 
                         InputStream in = new BufferedInputStream(connection.getInputStream());
                         reader = new BufferedReader(new InputStreamReader(in));
@@ -200,11 +209,7 @@ public class HttpConnection extends AsyncTask<String, Void, WSCervezasResponse> 
                         }
                     }
 
-                } catch (MalformedURLException e) {
-                    Log.e(TAG, e.getMessage(), e);
-                } catch (IOException e) {
-                    Log.e(TAG, e.getMessage(), e);
-                } catch (JSONException e) {
+                } catch (IOException | JSONException e) {
                     Log.e(TAG, e.getMessage(), e);
                 } finally {
                     if (connection != null) {
@@ -241,7 +246,7 @@ public class HttpConnection extends AsyncTask<String, Void, WSCervezasResponse> 
 
                     Integer httpResponseCode = connection.getResponseCode();
 
-                    if (httpResponseCode != null && httpResponseCode == HttpURLConnection.HTTP_OK){
+                    if (httpResponseCode == HttpURLConnection.HTTP_OK){
 
                         InputStream in = new BufferedInputStream(connection.getInputStream());
                         reader = new BufferedReader(new InputStreamReader(in));
@@ -259,11 +264,7 @@ public class HttpConnection extends AsyncTask<String, Void, WSCervezasResponse> 
                         }
                     }
 
-                } catch (MalformedURLException e) {
-                    Log.e(TAG, e.getMessage(), e);
-                } catch (IOException e) {
-                    Log.e(TAG, e.getMessage(), e);
-                } catch (JSONException e) {
+                } catch (IOException | JSONException e) {
                     Log.e(TAG, e.getMessage(), e);
                 } finally {
                     if (connection != null) {
@@ -300,7 +301,7 @@ public class HttpConnection extends AsyncTask<String, Void, WSCervezasResponse> 
 
                     Integer httpResponseCode = connection.getResponseCode();
 
-                    if (httpResponseCode != null && httpResponseCode == HttpURLConnection.HTTP_OK){
+                    if (httpResponseCode == HttpURLConnection.HTTP_OK){
 
                         InputStream in = new BufferedInputStream(connection.getInputStream());
                         reader = new BufferedReader(new InputStreamReader(in));
@@ -317,11 +318,7 @@ public class HttpConnection extends AsyncTask<String, Void, WSCervezasResponse> 
                         }
                     }
 
-                } catch (MalformedURLException e) {
-                    Log.e(TAG, e.getMessage(), e);
-                } catch (IOException e) {
-                    Log.e(TAG, e.getMessage(), e);
-                } catch (JSONException e) {
+                } catch (IOException | JSONException e) {
                     Log.e(TAG, e.getMessage(), e);
                 } finally {
                     if (connection != null) {
@@ -399,13 +396,16 @@ public class HttpConnection extends AsyncTask<String, Void, WSCervezasResponse> 
         EditText familia = (EditText) context.findViewById(R.id.etFamily);
         EditText tipo = (EditText) context.findViewById(R.id.etType);
         EditText alc = (EditText) context.findViewById(R.id.etAlc);
-        id.setText(Integer.toString(beer.getId()));
+        ImageView imageView = (ImageView) context.findViewById(R.id.ivImagen);
+
+        id.setText(String.valueOf(beer.getId()));
         nombre.setText(beer.getName());
         description.setText(beer.getDescription());
         pais.setText(beer.getCountry());
         familia.setText(beer.getFamily());
         tipo.setText(beer.getType());
-        alc.setText(beer.getAlc().toString());
+        alc.setText(String.valueOf(beer.getAlc()));
+        imageView.setImageBitmap(bitmap);
     }
 
     private void fillJsonParams(JSONObject jsonParam, String[] params) throws JSONException {
