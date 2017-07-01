@@ -30,6 +30,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -39,7 +40,7 @@ import java.util.List;
  *
  */
 
-public class HttpConnection extends AsyncTask<String, Void, WSCervezasResponse> {
+public class HttpConnection extends AsyncTask<HashMap, Void, WSCervezasResponse> {
 
     private Activity context;
     Bitmap bitmap = null;
@@ -52,15 +53,17 @@ public class HttpConnection extends AsyncTask<String, Void, WSCervezasResponse> 
     }
 
     @Override
-    protected WSCervezasResponse doInBackground(String... params) {
+    protected WSCervezasResponse doInBackground(HashMap... params) {
 
-        String urlString = Constants.BASE_URL + params[0];
+        HashMap<String, String> fieldsMap = params[0];
+
+        String urlString = Constants.BASE_URL + fieldsMap.get(Constants.OPERATION);
         URL url;
         WSCervezasResponse wsResponse = null;
         HttpURLConnection connection = null;
         BufferedReader reader = null;
 
-        switch (params[0]){
+        switch (fieldsMap.get(Constants.OPERATION)){
             case Constants.GET_ALL:
                 Log.i(TAG, "GetAll - ini");
                 try {
@@ -113,7 +116,7 @@ public class HttpConnection extends AsyncTask<String, Void, WSCervezasResponse> 
                 Log.i(TAG, "Get by id - ini");
 
                 try {
-                    url = new URL(urlString+params[1]);
+                    url = new URL(urlString+fieldsMap.get("id"));
                     connection = (HttpURLConnection) url.openConnection();
 
                     connection.setRequestProperty("User-Agent", "Mozilla/5.0" +
@@ -146,7 +149,7 @@ public class HttpConnection extends AsyncTask<String, Void, WSCervezasResponse> 
                                 }
                             }
                         } else if(Constants.STATUS_NOK.equals(wsResponse.getStatus())) {
-                            wsResponse.setMensaje("Beer not found :(");
+                            wsResponse.setMensaje("Connection Error");
                             Log.i(TAG, wsResponse.getMensaje());
                         }
 
@@ -180,8 +183,8 @@ public class HttpConnection extends AsyncTask<String, Void, WSCervezasResponse> 
                     fillConnection(connection);
                     connection.connect();
 
-                    JSONObject jsonParam = new JSONObject();
-                    fillJsonParams(jsonParam, params);
+                    fieldsMap.remove(Constants.OPERATION);
+                    JSONObject jsonParam = new JSONObject(fieldsMap);
 
                     OutputStream os = connection.getOutputStream();
                     BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
@@ -209,7 +212,7 @@ public class HttpConnection extends AsyncTask<String, Void, WSCervezasResponse> 
                         }
                     }
 
-                } catch (IOException | JSONException e) {
+                } catch (IOException e) {
                     Log.e(TAG, e.getMessage(), e);
                 } finally {
                     if (connection != null) {
@@ -235,8 +238,8 @@ public class HttpConnection extends AsyncTask<String, Void, WSCervezasResponse> 
                     fillConnection(connection);
                     connection.connect();
 
-                    JSONObject jsonParam = new JSONObject();
-                    fillJsonParamsToUpdate(jsonParam, params);
+                    fieldsMap.remove(Constants.OPERATION);
+                    JSONObject jsonParam = new JSONObject(fieldsMap);
 
                     OutputStream os = connection.getOutputStream();
                     BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
@@ -264,7 +267,7 @@ public class HttpConnection extends AsyncTask<String, Void, WSCervezasResponse> 
                         }
                     }
 
-                } catch (IOException | JSONException e) {
+                } catch (IOException e) {
                     Log.e(TAG, e.getMessage(), e);
                 } finally {
                     if (connection != null) {
@@ -291,7 +294,7 @@ public class HttpConnection extends AsyncTask<String, Void, WSCervezasResponse> 
                     connection.connect();
 
                     JSONObject jsonParam = new JSONObject();
-                    jsonParam.put("id", params[1]);
+                    jsonParam.put("id", fieldsMap.get("id"));
 
                     OutputStream os = connection.getOutputStream();
                     BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
@@ -408,48 +411,70 @@ public class HttpConnection extends AsyncTask<String, Void, WSCervezasResponse> 
         imageView.setImageBitmap(bitmap);
     }
 
-    private void fillJsonParams(JSONObject jsonParam, String[] params) throws JSONException {
-        if(!TextUtils.isEmpty(params[1])) {
-            jsonParam.put("name", params[1]);
-        }
-        if(!TextUtils.isEmpty(params[2])) {
-            jsonParam.put("description", params[2]);
-        }
-        if(!TextUtils.isEmpty(params[3])) {
-            jsonParam.put("country", params[3]);
-        }
-        if(!TextUtils.isEmpty(params[4])) {
-            jsonParam.put("type", params[4]);
-        }
-        if(!TextUtils.isEmpty(params[5])) {
-            jsonParam.put("family", params[5]);
-        }
-        if(!TextUtils.isEmpty(params[6])) {
-            jsonParam.put("alc", params[6]);
-        }
-    }
-    private void fillJsonParamsToUpdate(JSONObject jsonParam, String[] params) throws JSONException {
-        if(!TextUtils.isEmpty(params[1])) {
-            jsonParam.put("id", params[1]);
-        }
-        if(!TextUtils.isEmpty(params[2])) {
-            jsonParam.put("name", params[2]);
-        }
-        if(!TextUtils.isEmpty(params[3])) {
-            jsonParam.put("description", params[3]);
-        }
-        if(!TextUtils.isEmpty(params[4])) {
-            jsonParam.put("country", params[4]);
-        }
-        if(!TextUtils.isEmpty(params[5])) {
-            jsonParam.put("type", params[5]);
-        }
-        if(!TextUtils.isEmpty(params[6])) {
-            jsonParam.put("family", params[6]);
-        }
-        if(!TextUtils.isEmpty(params[7])) {
-            jsonParam.put("alc", params[7]);
-        }
-    }
+//    private void fillJsonParams(JSONObject jsonParam, HashMap params) throws JSONException {
+//        if(!TextUtils.isEmpty(params[1])) {
+//            jsonParam.put("name", params[1]);
+//        }
+//        if(!TextUtils.isEmpty(params[2])) {
+//            jsonParam.put("description", params[2]);
+//        }
+//        if(!TextUtils.isEmpty(params[3])) {
+//            jsonParam.put("country", params[3]);
+//        }
+//        if(!TextUtils.isEmpty(params[4])) {
+//            jsonParam.put("type", params[4]);
+//        }
+//        if(!TextUtils.isEmpty(params[5])) {
+//            jsonParam.put("family", params[5]);
+//        }
+//        if(!TextUtils.isEmpty(params[6])) {
+//            jsonParam.put("alc", params[6]);
+//        }
+//    }
+
+//    private void fillJsonParamsToUpdate(JSONObject jsonParam, HashMap params) throws JSONException {
+//        if (params.get("id") != null) {
+//            jsonParam.put("id", params.get("id"));
+//        }
+//        if (params.get("nombre") != null) {
+//            jsonParam.put("name", params.get("name"));
+//        }
+//        if (params.get("id") != null) {
+//            jsonParam.put("id", params.get("id"));
+//        }
+//        if (params.get("id") != null) {
+//            jsonParam.put("id", params.get("id"));
+//        }
+//        if (params.get("id") != null) {
+//            jsonParam.put("id", params.get("id"));
+//        }
+//        if (params.get("id") != null) {
+//            jsonParam.put("id", params.get("id"));
+//        }
+//        if (params.get("id") != null) {
+//            jsonParam.put("id", params.get("id"));
+//        }
+//        if (params.get("id") != null) {
+//            jsonParam.put("id", params.get("id"));
+//        }
+//        if (!TextUtils.isEmpty(nombre.getText().toString())) {
+//            jsonParam.put("name", nombre.getText().toString());
+//        }
+//        if (!TextUtils.isEmpty(description.getText().toString())) {
+//            jsonParam.put("description", description.getText().toString());
+//        }
+//        if (!TextUtils.isEmpty(pais.getText().toString())) {
+//            jsonParam.put("country", pais.getText().toString());
+//        }
+//        if (!TextUtils.isEmpty(tipo.getText().toString())) {
+//            jsonParam.put("type", tipo.getText().toString());
+//        }
+//        if (!TextUtils.isEmpty(familia.getText().toString())) {
+//            jsonParam.put("family", familia.getText().toString());
+//        }
+//        if (!TextUtils.isEmpty(alc.getText().toString())) {
+//            jsonParam.put("alc", alc.getText().toString());
+//        }
+//    }
 
 }

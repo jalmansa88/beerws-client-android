@@ -1,5 +1,8 @@
 <resources>
-    <string name="app_name">ServiciosWeb</string>
+    <string name="app_name">CervezApps</string>
     <string name="action_settings">Not Developed yet</string>
     <string name="floating_button_message">Not Developed yet</string>
+    <string name="name_and_desctiption_not_empty">Rellena el Nombre y la Descripción para insertar!</string>
+    <string name="id_and_name_not_null">ID y Nombre no pueden ser nulos!</string>
+    <string name="id_not_null">Es necesario introducir un ID</string>
 </resources>

@@ -17,4 +17,6 @@ public class Constants {
     public static final String STATUS_OK = "1";
     public static final String STATUS_NOK = "2";
 
+    public static final String OPERATION = "operation";
+
 }
