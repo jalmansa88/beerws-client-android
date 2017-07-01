@@ -1,6 +1,7 @@
 package com.example.developmentvmachine.serviciosweb.utils;
 
 import android.app.Activity;
+import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -17,23 +18,54 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
 
 /**
  * Created by Development VMachine on 28/06/2017.
  */
 
-public abstract class HttpClient extends AsyncTask<String, Void, String> {
+public class HttpClient extends AsyncTask<String, Void, InputStream> {
 
-s    String TAG = getClass().getSimpleName();
+    String TAG = getClass().getSimpleName();
+
+    private Bitmap bitmap = null;
+    private Activity context;
+    private HashMap<String, String> fieldsMap;
+    private String requestMethod;
+    String urlToConnect;
+
+    public HttpClient(){
+        super();
+    }
+
+    public HttpClient(Activity context, HashMap<String, String> fieldData, String request){
+        this.context = context;
+        this.fieldsMap = fieldData;
+        this.requestMethod = request;
+
+        if(Constants.HTTP_GET.equals(requestMethod)){
+
+        }
+
+        if(Constants.HTTP_POST.equals(requestMethod)){
+
+        }
+    }
 
     @Override
-    protected String doInBackground(String... params) {
+    protected InputStream doInBackground(String... params) {
 
+        if(Constants.HTTP_GET.equals(requestMethod)){
+           return HttpUtility.GET(params[0]);
+        }
+        if(Constants.HTTP_POST.equals(requestMethod)){
+            return HttpUtility.POST(params[0], fieldsMap);
+        }
         return null;
     }
 
     @Override
-    protected void onPostExecute(String s) {
+    protected void onPostExecute(InputStream s) {
         super.onPostExecute(s);
     }
 }

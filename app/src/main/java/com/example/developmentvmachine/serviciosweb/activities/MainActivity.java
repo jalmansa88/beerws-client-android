@@ -13,6 +13,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.developmentvmachine.serviciosweb.R;
+import com.example.developmentvmachine.serviciosweb.impl.CervezasServiceImpl;
 import com.example.developmentvmachine.serviciosweb.utils.Constants;
 import com.example.developmentvmachine.serviciosweb.utils.HttpClient;
 import com.example.developmentvmachine.serviciosweb.utils.HttpConnection;
@@ -39,6 +40,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     HttpConnection hiloConexion;
     HttpClient httpClient;
 
+    CervezasServiceImpl cervezasImpl;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,6 +67,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         insertar.setOnClickListener(this);
         actualizar.setOnClickListener(this);
         borrar.setOnClickListener(this);
+
+        cervezasImpl = new CervezasServiceImpl(this);
 
 
 //        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -104,6 +109,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         switch (v.getId()) {
             case R.id.consultar:
+                cervezasImpl.getAll();
                 fields.put(Constants.OPERATION, Constants.GET_ALL);
                 hiloConexion = new HttpConnection(this);
                 hiloConexion.execute(fields);

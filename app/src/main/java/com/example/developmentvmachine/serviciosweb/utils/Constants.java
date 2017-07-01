@@ -19,4 +19,7 @@ public class Constants {
 
     public static final String OPERATION = "operation";
 
+    public static final String HTTP_POST = "post";
+    public static final String HTTP_GET = "get";
+
 }
