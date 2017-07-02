@@ -3,6 +3,7 @@ package com.example.developmentvmachine.serviciosweb.utils;
 import android.renderscript.ScriptGroup;
 import android.util.Log;
 
+import org.apache.commons.io.IOUtils;
 import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
@@ -26,12 +27,12 @@ public class HttpUtility {
 
     public static final String TAG = HttpUtility.class.getSimpleName();
 
-    public static InputStream GET(String urlString) {
+    public static String GET(String urlString) {
 
         Log.i(TAG, "GET - ini");
 
         HttpURLConnection connection = null;
-        InputStream output = null;
+        String output = null;
 
         try {
             URL url = new URL(urlString);
@@ -42,7 +43,7 @@ public class HttpUtility {
             Integer responseCode = connection.getResponseCode();
 
             if (responseCode == HttpURLConnection.HTTP_OK) {
-                output = connection.getInputStream();
+                output = inputstreamToString(connection.getInputStream());
             } else {
                 throw new Exception("Error connecting to " + urlString);
             }
@@ -61,11 +62,11 @@ public class HttpUtility {
         return output;
     }
 
-    public static InputStream POST(String urlString, HashMap<String, String> params) {
+    public static String POST(String urlString, HashMap<String, String> params) {
         Log.i(TAG, "POST - ini");
 
         HttpURLConnection connection = null;
-        InputStream output = null;
+        String output = null;
 
         try {
             URL url = new URL(urlString);
@@ -88,13 +89,13 @@ public class HttpUtility {
             Integer httpResponseCode = connection.getResponseCode();
 
             if (httpResponseCode == HttpURLConnection.HTTP_OK) {
-                output = new BufferedInputStream(connection.getInputStream());
+                output = inputstreamToString(connection.getInputStream());
             }else{
                 throw new Exception("Error connecting to " + urlString);
             }
 
         } catch (Exception e) {
-            Log.d("InputStream", e.getLocalizedMessage());
+            Log.e(TAG, e.getLocalizedMessage());
         }finally {
             if (connection != null) {
                 connection.disconnect();
@@ -102,7 +103,13 @@ public class HttpUtility {
         }
         Log.i(TAG, "POST - end");
         return output;
+    }
 
+    public static String inputstreamToString(InputStream input) throws IOException {
+        InputStream in = new BufferedInputStream(input);
+        BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+
+        return IOUtils.toString(reader);
     }
 
 }

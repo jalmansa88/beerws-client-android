@@ -37,7 +37,6 @@ public class CervezasServiceImpl implements CervezasService {
         HttpClient httpClient = new HttpClient(context, null, "GET");
         httpClient.execute(Constants.BASE_URL+Constants.GET_ALL);
 
-
         InputStream in = new BufferedInputStream(connection.getInputStream());
         reader = new BufferedReader(new InputStreamReader(in));
 
