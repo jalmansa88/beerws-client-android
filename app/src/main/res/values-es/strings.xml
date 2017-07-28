@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">CervezApps</string>
+    <string name="id_and_name_not_null">Por favor, inserta el ID y el Nombre.</string>
+    <string name="id_not_null">Es necesario introducir un ID</string>
+    <string name="name_and_desctiption_not_empty">Rellena el Nombre y la Descripción para insertar!</string>
+    <string name="show_full_beer_list">Mostrando lista completa de cervezas</string>
+    <string name="not_available">No disponible</string>
+    <string name="not_developed">Aún en desarrollo</string>
+    <string name="connection_error">Error de conexion</string>
+    <string name="more_than_one_id">Mas de una cerveza con ID %d</string>
+    <string name="beer_found" >Cerveza encontrada!</string>
+    <string name="error_inserting_beer">Error insertando cerveza:</string>
+    <string name="update_success">Actualización correcta</string>
+    <string name="error_updating_beer">Error actualizando cerveza</string>
+    <string name="insert_success">Beer inserted successfuly</string>
+    <string name="id_name_and_desc_not_null">Por favor, inserta el ID, el nombre y la descripcion para actualizar</string>
+    <string name="delete_success">Cerveza eliminada correctamente</string>
+    <string name="error_delete">Eror eliminando cerveza</string>
+</resources>

@@ -4,8 +4,6 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.text.method.ScrollingMovementMethod;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -14,13 +12,13 @@ import android.widget.Toast;
 
 import com.example.developmentvmachine.serviciosweb.R;
 import com.example.developmentvmachine.serviciosweb.impl.CervezasServiceImpl;
-import com.example.developmentvmachine.serviciosweb.utils.Constants;
-import com.example.developmentvmachine.serviciosweb.utils.HttpClient;
 import com.example.developmentvmachine.serviciosweb.utils.HttpConnection;
 
 import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+
+    public static final String TAG = MainActivity.class.getSimpleName();
 
     Button consultar;
     Button constarId;
@@ -38,7 +36,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     TextView resultado;
 
     HttpConnection hiloConexion;
-    HttpClient httpClient;
+//    HttpClient httpClient;
 
     CervezasServiceImpl cervezasImpl;
 
@@ -81,45 +79,40 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //        });
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        // Inflate the menu; this adds items to the action bar if it is present.
+//        getMenuInflater().inflate(R.menu.menu_main, menu);
+//        return true;
+//    }
+//
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        // Handle action bar item clicks here. The action bar will
+//        // automatically handle clicks on the Home/Up button, so long
+//        // as you specify a parent activity in AndroidManifest.xml.
+//        int id = item.getItemId();
+//
+//        //noinspection SimplifiableIfStatement
+//        if (id == R.id.action_settings) {
+//            return true;
+//        }
+//
+//        return super.onOptionsItemSelected(item);
+//    }
 
     @Override
     public void onClick(View v) {
-        HashMap<String, String> fields = preProcessFieldValues();
+        HashMap<String, String> fields = null;
+        Integer beerId = !TextUtils.isEmpty(id.getText().toString()) ? Integer.valueOf(id.getText().toString()) : null;
 
         switch (v.getId()) {
             case R.id.consultar:
                 cervezasImpl.getAll();
-                fields.put(Constants.OPERATION, Constants.GET_ALL);
-                hiloConexion = new HttpConnection(this);
-                hiloConexion.execute(fields);
-
                 break;
             case R.id.consultarid:
-                if (checkIdValue(id.getText().toString())) {
-                    fields.put(Constants.OPERATION, Constants.GET_BY_ID);
-                    hiloConexion = new HttpConnection(this);
-                    hiloConexion.execute(fields);
+                if (checkIdValue(beerId)) {
+                    cervezasImpl.getById(beerId);
                 } else {
                     Toast toast = Toast.makeText(this, R.string.id_not_null, Toast.LENGTH_SHORT);
                     toast.show();
@@ -128,34 +121,29 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.insertar:
                 if (!TextUtils.isEmpty(nombre.getText().toString())
                         && !TextUtils.isEmpty(description.getText().toString())) {
-                    fields.put(Constants.OPERATION, Constants.INSERT);
-                    hiloConexion = new HttpConnection(this);
-                    hiloConexion.execute(fields);
+                    fields = preProcessFieldValues();
+                    cervezasImpl.insertCerveza(fields);
                 } else {
                     Toast toast = Toast.makeText(this, R.string.name_and_desctiption_not_empty, Toast.LENGTH_SHORT);
                     toast.show();
                 }
                 break;
             case R.id.actualizar:
-                if (checkValuesForUpdate(id.getText().toString(), nombre.getText().toString())) {
-                    fields.put(Constants.OPERATION, Constants.UPDATE);
-                    hiloConexion = new HttpConnection(this);
-                    hiloConexion.execute(fields);
+                if (checkValuesForUpdate(beerId, nombre.getText().toString(), description.getText().toString())) {
+                    fields = preProcessFieldValues();
+                    cervezasImpl.updateCerveza(beerId, fields);
                 } else {
-                    Toast toast = Toast.makeText(this, R.string.id_and_name_not_null, Toast.LENGTH_SHORT);
+                    Toast toast = Toast.makeText(this, R.string.id_name_and_desc_not_null, Toast.LENGTH_SHORT);
                     toast.show();
                 }
                 break;
             case R.id.borrar:
-                if (checkIdValue(id.getText().toString())) {
-                    fields.put(Constants.OPERATION, Constants.DELETE);
-                    hiloConexion = new HttpConnection(this);
-                    hiloConexion.execute(fields);
+                if (checkIdValue(beerId)) {
+                    cervezasImpl.deleteCerveza(beerId);
                 } else {
                     Toast toast = Toast.makeText(this, R.string.id_not_null, Toast.LENGTH_SHORT);
                     toast.show();
                 }
-
                 break;
             default:
 
@@ -175,40 +163,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         fieldsMap.put("family", familia.getText().toString());
         fieldsMap.put("alc", alc.getText().toString());
 
-//        if (!TextUtils.isEmpty(id.getText().toString())) {
-//            fieldsMap.put("id", id.getText().toString());
-//        }
-//        if (!TextUtils.isEmpty(nombre.getText().toString())) {
-//            fieldsMap.put("name", nombre.getText().toString());
-//        }
-//        if (!TextUtils.isEmpty(description.getText().toString())) {
-//            fieldsMap.put("description", description.getText().toString());
-//        }
-//        if (!TextUtils.isEmpty(pais.getText().toString())) {
-//            fieldsMap.put("country", pais.getText().toString());
-//        }
-//        if (!TextUtils.isEmpty(tipo.getText().toString())) {
-//            fieldsMap.put("type", tipo.getText().toString());
-//        }
-//        if (!TextUtils.isEmpty(familia.getText().toString())) {
-//            fieldsMap.put("family", familia.getText().toString());
-//        }
-//        if (!TextUtils.isEmpty(alc.getText().toString())) {
-//            fieldsMap.put("alc", alc.getText().toString());
-//        }
         return fieldsMap;
     }
 
-    private boolean checkIdValue(String st) {
-        if (TextUtils.isEmpty(st)) {
-            return false;
-        }
-        Integer id = Integer.parseInt(st);
-        return id > 0;
+    private boolean checkIdValue(Integer id) {
+        return (id == null ? false : id > 0);
     }
 
-    private boolean checkValuesForUpdate(String id, String name) {
-        return checkIdValue(id) && !TextUtils.isEmpty(name);
+    private boolean checkValuesForUpdate(Integer id, String name, String desc) {
+        return checkIdValue(id) && !TextUtils.isEmpty(name) && !TextUtils.isEmpty(desc);
     }
 
 }

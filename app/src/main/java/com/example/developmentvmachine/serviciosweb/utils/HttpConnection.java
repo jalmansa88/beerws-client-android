@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
-import android.text.TextUtils;
 import android.util.Log;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -358,16 +357,6 @@ public class HttpConnection extends AsyncTask<HashMap, Void, WSCervezasResponse>
         }else if(wsResponse.getCervezas() != null && wsResponse.getCervezas().size() > 0){
             fillBeerFields(wsResponse.getCervezas().get(0));
         }
-    }
-
-    @Override
-    protected void onProgressUpdate(Void... values) {
-        super.onProgressUpdate(values);
-    }
-
-    @Override
-    protected void onCancelled(WSCervezasResponse s) {
-        super.onCancelled(s);
     }
 
     private String printCervezasTextView(List<Cerveza> cervezas) {

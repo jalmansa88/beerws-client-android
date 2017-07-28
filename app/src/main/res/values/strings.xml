@@ -1,8 +1,19 @@
 <resources>
     <string name="app_name">CervezApps</string>
-    <string name="action_settings">Not Developed yet</string>
-    <string name="floating_button_message">Not Developed yet</string>
+    <string name="not_available">Not available</string>
+    <string name="not_developed">Not Developed yet</string>
     <string name="name_and_desctiption_not_empty">Rellena el Nombre y la Descripción para insertar!</string>
-    <string name="id_and_name_not_null">ID y Nombre no pueden ser nulos!</string>
-    <string name="id_not_null">Es necesario introducir un ID</string>
+    <string name="id_and_name_not_null">ID and Name cannot be blank!</string>
+    <string name="id_not_null">ID is mandatory</string>
+    <string name="show_full_beer_list">Showing all Beers</string>
+    <string name="connection_error">Connection Error</string>
+    <string name="more_than_one_id">Mas de un registro para ID %d</string>
+    <string name="beer_found" >Cerveza encontrada</string>
+    <string name="error_inserting_beer">Error insertando cerveza:</string>
+    <string name="update_success">Update Success</string>
+    <string name="error_updating_beer">Error updating beer</string>
+    <string name="id_name_and_desc_not_null">ID, Name and Description cannot be blank!</string>
+    <string name="insert_success">Beer inserted successfuly</string>
+    <string name="delete_success">Delete Success!</string>
+    <string name="error_delete">Error removing beer!</string>
 </resources>

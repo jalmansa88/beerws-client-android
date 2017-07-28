@@ -1,6 +1,5 @@
 package com.example.developmentvmachine.serviciosweb.utils;
 
-import android.renderscript.ScriptGroup;
 import android.util.Log;
 
 import org.apache.commons.io.IOUtils;
@@ -15,7 +14,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 
