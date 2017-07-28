@@ -37,8 +37,10 @@ import java.util.List;
  *
  * Http connection class to get the Beer data from DB
  *
+ * @deprecated Use HttpClient instead and implement the CervezasService
+ *
  */
-
+@Deprecated
 public class HttpConnection extends AsyncTask<HashMap, Void, WSCervezasResponse> {
 
     private Activity context;

@@ -129,7 +129,7 @@ public class CervezasServiceImpl implements CervezasService {
     }
 
     @Override
-    public void updateCerveza(int id, HashMap<String, String> fieldsMap) {
+    public void updateCerveza(HashMap<String, String> fieldsMap) {
         Log.i(TAG, "Update - Ini");
         HttpClient client = new HttpClient(new CallBackService() {
                 @Override

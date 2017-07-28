@@ -12,7 +12,7 @@ public interface CervezasService {
 
     public void getById(int id);
 
-    public void updateCerveza(int id, HashMap<String, String> fieldsMap);
+    public void updateCerveza(HashMap<String, String> fieldsMap);
 
     public void deleteCerveza(int id);
 

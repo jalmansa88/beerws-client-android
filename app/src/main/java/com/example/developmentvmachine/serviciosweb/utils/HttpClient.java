@@ -19,7 +19,6 @@ public class HttpClient extends AsyncTask<String, Void, String> {
     private Bitmap bitmap = null;
     private HashMap<String, String> fieldsMap;
     private String requestMethod;
-    String urlToConnect;
 
     public HttpClient(){
         super();
