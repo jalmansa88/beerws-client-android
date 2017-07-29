@@ -4,7 +4,7 @@ import android.app.Activity;
 import android.util.Log;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.TextView;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
@@ -13,6 +13,7 @@ import com.example.developmentvmachine.serviciosweb.model.Cerveza;
 import com.example.developmentvmachine.serviciosweb.model.WSCervezasResponse;
 import com.example.developmentvmachine.serviciosweb.services.CallBackService;
 import com.example.developmentvmachine.serviciosweb.services.CervezasService;
+import com.example.developmentvmachine.serviciosweb.utils.BeerAdapter;
 import com.example.developmentvmachine.serviciosweb.utils.Constants;
 import com.example.developmentvmachine.serviciosweb.utils.HttpClient;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -41,18 +42,11 @@ public class CervezasServiceImpl implements CervezasService {
 
     public CervezasServiceImpl(Activity context) {
         this.context = context;
-
-        id = (EditText) context.findViewById(R.id.etId);
-        nombre = (EditText) context.findViewById(R.id.etNombre);
-        description = (EditText) context.findViewById(R.id.etDescription);
-        pais = (EditText) context.findViewById(R.id.etCountry);
-        familia = (EditText) context.findViewById(R.id.etFamily);
-        tipo = (EditText) context.findViewById(R.id.etType);
-        alc = (EditText) context.findViewById(R.id.etAlc);
     }
 
     @Override
     public void getAll() {
+
         HttpClient httpClient = new HttpClient(new CallBackService() {
             @Override
             public void callback(String response) {
@@ -70,8 +64,12 @@ public class CervezasServiceImpl implements CervezasService {
                     Toast toast = Toast.makeText(context, toastMsg, Toast.LENGTH_SHORT);
                     toast.show();
 
-                    TextView txtView = (TextView) context.findViewById(R.id.tvResultado);
-                    txtView.setText(printCervezasTextView(wsResponse.getCervezas()));
+                    List<Cerveza> cervezaArrayList = wsResponse.getCervezas();
+                    BeerAdapter adapter = new BeerAdapter(context, cervezaArrayList);;
+
+                    ListView beerListView = (ListView)context.findViewById(R.id.beersListView);
+
+                    beerListView.setAdapter(adapter);
 
                 } catch (IOException e) {
                     Log.e(TAG, e.getMessage(), e);
@@ -106,7 +104,7 @@ public class CervezasServiceImpl implements CervezasService {
                                 Glide.with(context)
                                         .load(imageUrl)
                                         .crossFade()
-                                        .placeholder(android.R.drawable.ic_menu_report_image)
+                                        .error(android.R.drawable.ic_menu_report_image)
                                         .into(imageView);
                             }else{
                                 toastMsg = String.format(context.getString(R.string.more_than_one_id), cervezas.get(0).getId());
@@ -252,22 +250,22 @@ public class CervezasServiceImpl implements CervezasService {
     }
 
     private void fillBeerFields(Cerveza beer){
-        id.setText(String.valueOf(beer.getId()));
-        nombre.setText(beer.getName());
-        description.setText(beer.getDescription());
-        pais.setText(beer.getCountry());
-        familia.setText(beer.getFamily());
-        tipo.setText(beer.getType());
-        alc.setText(String.valueOf(beer.getAlc()));
+//        id.setText(String.valueOf(beer.getId()));
+//        nombre.setText(beer.getName());
+//        description.setText(beer.getDescription());
+//        pais.setText(beer.getCountry());
+//        familia.setText(beer.getFamily());
+//        tipo.setText(beer.getType());
+//        alc.setText(String.valueOf(beer.getAlc()));
     }
 
     private void clearFields() {
-        id.getText().clear();
-        nombre.getText().clear();
-        description.getText().clear();
-        pais.getText().clear();
-        familia.getText().clear();
-        tipo.getText().clear();
-        alc.getText().clear();
+//        id.getText().clear();
+//        nombre.getText().clear();
+//        description.getText().clear();
+//        pais.getText().clear();
+//        familia.getText().clear();
+//        tipo.getText().clear();
+//        alc.getText().clear();
     }
 }

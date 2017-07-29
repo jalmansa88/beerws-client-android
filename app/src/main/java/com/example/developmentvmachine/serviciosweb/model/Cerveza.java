@@ -1,5 +1,6 @@
 package com.example.developmentvmachine.serviciosweb.model;
 
+import com.example.developmentvmachine.serviciosweb.utils.Constants;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.math.BigDecimal;
@@ -78,7 +79,7 @@ public class Cerveza {
     }
 
     public String getImagePath() {
-        return imagePath;
+        return Constants.BASE_URL + "/" + imagePath;
     }
 
     public void setImagePath(String imagePath) {

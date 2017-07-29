@@ -17,4 +17,5 @@
     <string name="id_name_and_desc_not_null">Por favor, inserta el ID, el nombre y la descripcion para actualizar</string>
     <string name="delete_success">Cerveza eliminada correctamente</string>
     <string name="error_delete">Eror eliminando cerveza</string>
+    <string name="button_show_all">Mostrar todas las cervezas</string>
 </resources>

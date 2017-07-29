@@ -8,7 +8,7 @@
     <string name="show_full_beer_list">Showing all Beers</string>
     <string name="connection_error">Connection Error</string>
     <string name="more_than_one_id">Mas de un registro para ID %d</string>
-    <string name="beer_found" >Cerveza encontrada</string>
+    <string name="beer_found">Cerveza encontrada</string>
     <string name="error_inserting_beer">Error insertando cerveza:</string>
     <string name="update_success">Update Success</string>
     <string name="error_updating_beer">Error updating beer</string>
@@ -16,4 +16,5 @@
     <string name="insert_success">Beer inserted successfuly</string>
     <string name="delete_success">Delete Success!</string>
     <string name="error_delete">Error removing beer!</string>
+    <string name="button_show_all">Show All</string>
 </resources>

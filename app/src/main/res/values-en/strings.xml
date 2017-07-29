@@ -17,4 +17,5 @@
     <string name="id_name_and_desc_not_null">ID, Name and Description cannot be blank!</string>
     <string name="delete_success">Delete Success!</string>
     <string name="error_delete">Error removing beer!</string>
+    <string name="button_show_all">Show All</string>
 </resources>

@@ -12,7 +12,6 @@ import android.widget.Toast;
 
 import com.example.developmentvmachine.serviciosweb.R;
 import com.example.developmentvmachine.serviciosweb.impl.CervezasServiceImpl;
-import com.example.developmentvmachine.serviciosweb.utils.HttpConnection;
 
 import java.util.HashMap;
 
@@ -34,9 +33,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     EditText familia;
     EditText alc;
     TextView resultado;
-
-    HttpConnection hiloConexion;
-//    HttpClient httpClient;
 
     CervezasServiceImpl cervezasImpl;
 
@@ -131,7 +127,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.actualizar:
                 if (checkValuesForUpdate(beerId, nombre.getText().toString(), description.getText().toString())) {
                     fields = preProcessFieldValues();
-                    cervezasImpl.updateCerveza(beerId, fields);
+                    cervezasImpl.updateCerveza(fields);
                 } else {
                     Toast toast = Toast.makeText(this, R.string.id_name_and_desc_not_null, Toast.LENGTH_SHORT);
                     toast.show();
