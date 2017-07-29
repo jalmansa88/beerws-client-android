@@ -1,10 +1,12 @@
 package com.example.developmentvmachine.serviciosweb.utils;
 
 import android.app.Activity;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
-import android.text.TextUtils;
 import android.util.Log;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,34 +28,43 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.List;
 
 /**
  * Created by Development VMachine on 24/04/2017.
+ *
+ * Http connection class to get the Beer data from DB
+ *
+ * @deprecated Use HttpClient instead and implement the CervezasService
+ *
  */
-
-public class HttpConnection extends AsyncTask<String, Void, WSCervezasResponse> {
+@Deprecated
+public class HttpConnection extends AsyncTask<HashMap, Void, WSCervezasResponse> {
 
     private Activity context;
+    Bitmap bitmap = null;
 
-    String TAG = getClass().getSimpleName();
+
+    private final String TAG = getClass().getSimpleName();
 
     public HttpConnection(Activity context){
         this.context = context;
     }
 
     @Override
-    protected WSCervezasResponse doInBackground(String... params) {
+    protected WSCervezasResponse doInBackground(HashMap... params) {
 
-        String urlString = Constants.BASE_URL + params[0];
-        URL url = null;
+        HashMap<String, String> fieldsMap = params[0];
+
+        String urlString = Constants.BASE_URL + fieldsMap.get(Constants.OPERATION);
+        URL url;
         WSCervezasResponse wsResponse = null;
         HttpURLConnection connection = null;
         BufferedReader reader = null;
 
-        switch (params[0]){
+        switch (fieldsMap.get(Constants.OPERATION)){
             case Constants.GET_ALL:
                 Log.i(TAG, "GetAll - ini");
                 try {
@@ -65,7 +76,7 @@ public class HttpConnection extends AsyncTask<String, Void, WSCervezasResponse> 
 
                     Integer responseCode = connection.getResponseCode();
 
-                    if (responseCode != null && responseCode == HttpURLConnection.HTTP_OK){
+                    if (responseCode == HttpURLConnection.HTTP_OK){
 
                         InputStream in = new BufferedInputStream(connection.getInputStream());
                         reader = new BufferedReader(new InputStreamReader(in));
@@ -76,7 +87,6 @@ public class HttpConnection extends AsyncTask<String, Void, WSCervezasResponse> 
                         Log.i(TAG, "getAll response: " + wsResponse.toString());
 
                         String statusResponse = wsResponse.getStatus();
-                        List<Cerveza> cervezas = wsResponse.getCervezas();
 
                         if(Constants.STATUS_OK.equals(statusResponse)){
                             //output = printCervezas(output, cervezas);
@@ -86,9 +96,6 @@ public class HttpConnection extends AsyncTask<String, Void, WSCervezasResponse> 
                             Log.i(TAG, wsResponse.getMensaje());
                         }
                     }
-
-                } catch (MalformedURLException e) {
-                    Log.e(TAG, e.getMessage(), e);
                 } catch (IOException e) {
                     Log.e(TAG, e.getMessage(), e);
                 } finally {
@@ -110,7 +117,7 @@ public class HttpConnection extends AsyncTask<String, Void, WSCervezasResponse> 
                 Log.i(TAG, "Get by id - ini");
 
                 try {
-                    url = new URL(urlString+params[1]);
+                    url = new URL(urlString+fieldsMap.get("id"));
                     connection = (HttpURLConnection) url.openConnection();
 
                     connection.setRequestProperty("User-Agent", "Mozilla/5.0" +
@@ -118,7 +125,7 @@ public class HttpConnection extends AsyncTask<String, Void, WSCervezasResponse> 
 
                     Integer httpResponseCode = connection.getResponseCode();
 
-                    if (httpResponseCode != null && httpResponseCode == HttpURLConnection.HTTP_OK){
+                    if (httpResponseCode == HttpURLConnection.HTTP_OK){
 
                         InputStream in = new BufferedInputStream(connection.getInputStream());
                         reader = new BufferedReader(new InputStreamReader(in));
@@ -133,9 +140,17 @@ public class HttpConnection extends AsyncTask<String, Void, WSCervezasResponse> 
                                 wsResponse.setMensaje("Mas de un registro para ID " + cervezas.get(0).getId());
                             }else{
                                 wsResponse.setMensaje("Beer found!!");
+                                if (wsResponse.getCervezas().get(0).getImagePath() != null){
+                                    URL imageUrl = new URL(Constants.BASE_URL + "/" + wsResponse.getCervezas().get(0).getImagePath());
+                                    HttpURLConnection imageConnection = (HttpURLConnection) imageUrl.openConnection();
+                                    imageConnection.connect();
+                                    bitmap = BitmapFactory.decodeStream(imageConnection.getInputStream());
+                                } else {
+                                    bitmap = BitmapFactory.decodeResource(context.getResources(), android.R.drawable.ic_delete);
+                                }
                             }
                         } else if(Constants.STATUS_NOK.equals(wsResponse.getStatus())) {
-                            wsResponse.setMensaje("Beear not found :(");
+                            wsResponse.setMensaje("Connection Error");
                             Log.i(TAG, wsResponse.getMensaje());
                         }
 
@@ -143,8 +158,6 @@ public class HttpConnection extends AsyncTask<String, Void, WSCervezasResponse> 
                         Log.e(TAG, "Connection error");
                     }
 
-                } catch (MalformedURLException e) {
-                    Log.e(TAG, e.getMessage(), e);
                 } catch (IOException e) {
                     Log.e(TAG, e.getMessage(), e);
                 } finally {
@@ -171,8 +184,8 @@ public class HttpConnection extends AsyncTask<String, Void, WSCervezasResponse> 
                     fillConnection(connection);
                     connection.connect();
 
-                    JSONObject jsonParam = new JSONObject();
-                    fillJsonParams(jsonParam, params);
+                    fieldsMap.remove(Constants.OPERATION);
+                    JSONObject jsonParam = new JSONObject(fieldsMap);
 
                     OutputStream os = connection.getOutputStream();
                     BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
@@ -182,7 +195,7 @@ public class HttpConnection extends AsyncTask<String, Void, WSCervezasResponse> 
 
                     Integer httpResponseCode = connection.getResponseCode();
 
-                    if (httpResponseCode != null && httpResponseCode == HttpURLConnection.HTTP_OK){
+                    if (httpResponseCode == HttpURLConnection.HTTP_OK){
 
                         InputStream in = new BufferedInputStream(connection.getInputStream());
                         reader = new BufferedReader(new InputStreamReader(in));
@@ -200,11 +213,7 @@ public class HttpConnection extends AsyncTask<String, Void, WSCervezasResponse> 
                         }
                     }
 
-                } catch (MalformedURLException e) {
-                    Log.e(TAG, e.getMessage(), e);
                 } catch (IOException e) {
-                    Log.e(TAG, e.getMessage(), e);
-                } catch (JSONException e) {
                     Log.e(TAG, e.getMessage(), e);
                 } finally {
                     if (connection != null) {
@@ -230,8 +239,8 @@ public class HttpConnection extends AsyncTask<String, Void, WSCervezasResponse> 
                     fillConnection(connection);
                     connection.connect();
 
-                    JSONObject jsonParam = new JSONObject();
-                    fillJsonParamsToUpdate(jsonParam, params);
+                    fieldsMap.remove(Constants.OPERATION);
+                    JSONObject jsonParam = new JSONObject(fieldsMap);
 
                     OutputStream os = connection.getOutputStream();
                     BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
@@ -241,7 +250,7 @@ public class HttpConnection extends AsyncTask<String, Void, WSCervezasResponse> 
 
                     Integer httpResponseCode = connection.getResponseCode();
 
-                    if (httpResponseCode != null && httpResponseCode == HttpURLConnection.HTTP_OK){
+                    if (httpResponseCode == HttpURLConnection.HTTP_OK){
 
                         InputStream in = new BufferedInputStream(connection.getInputStream());
                         reader = new BufferedReader(new InputStreamReader(in));
@@ -259,11 +268,7 @@ public class HttpConnection extends AsyncTask<String, Void, WSCervezasResponse> 
                         }
                     }
 
-                } catch (MalformedURLException e) {
-                    Log.e(TAG, e.getMessage(), e);
                 } catch (IOException e) {
-                    Log.e(TAG, e.getMessage(), e);
-                } catch (JSONException e) {
                     Log.e(TAG, e.getMessage(), e);
                 } finally {
                     if (connection != null) {
@@ -290,7 +295,7 @@ public class HttpConnection extends AsyncTask<String, Void, WSCervezasResponse> 
                     connection.connect();
 
                     JSONObject jsonParam = new JSONObject();
-                    jsonParam.put("id", params[1]);
+                    jsonParam.put("id", fieldsMap.get("id"));
 
                     OutputStream os = connection.getOutputStream();
                     BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
@@ -300,7 +305,7 @@ public class HttpConnection extends AsyncTask<String, Void, WSCervezasResponse> 
 
                     Integer httpResponseCode = connection.getResponseCode();
 
-                    if (httpResponseCode != null && httpResponseCode == HttpURLConnection.HTTP_OK){
+                    if (httpResponseCode == HttpURLConnection.HTTP_OK){
 
                         InputStream in = new BufferedInputStream(connection.getInputStream());
                         reader = new BufferedReader(new InputStreamReader(in));
@@ -317,11 +322,7 @@ public class HttpConnection extends AsyncTask<String, Void, WSCervezasResponse> 
                         }
                     }
 
-                } catch (MalformedURLException e) {
-                    Log.e(TAG, e.getMessage(), e);
-                } catch (IOException e) {
-                    Log.e(TAG, e.getMessage(), e);
-                } catch (JSONException e) {
+                } catch (IOException | JSONException e) {
                     Log.e(TAG, e.getMessage(), e);
                 } finally {
                     if (connection != null) {
@@ -360,16 +361,6 @@ public class HttpConnection extends AsyncTask<String, Void, WSCervezasResponse> 
         }
     }
 
-    @Override
-    protected void onProgressUpdate(Void... values) {
-        super.onProgressUpdate(values);
-    }
-
-    @Override
-    protected void onCancelled(WSCervezasResponse s) {
-        super.onCancelled(s);
-    }
-
     private String printCervezasTextView(List<Cerveza> cervezas) {
         String output = "";
         for (Cerveza cerveza : cervezas) {
@@ -399,57 +390,82 @@ public class HttpConnection extends AsyncTask<String, Void, WSCervezasResponse> 
         EditText familia = (EditText) context.findViewById(R.id.etFamily);
         EditText tipo = (EditText) context.findViewById(R.id.etType);
         EditText alc = (EditText) context.findViewById(R.id.etAlc);
-        id.setText(Integer.toString(beer.getId()));
+        ImageView imageView = (ImageView) context.findViewById(R.id.ivImagen);
+
+        id.setText(String.valueOf(beer.getId()));
         nombre.setText(beer.getName());
         description.setText(beer.getDescription());
         pais.setText(beer.getCountry());
         familia.setText(beer.getFamily());
         tipo.setText(beer.getType());
-        alc.setText(beer.getAlc().toString());
+        alc.setText(String.valueOf(beer.getAlc()));
+        imageView.setImageBitmap(bitmap);
     }
 
-    private void fillJsonParams(JSONObject jsonParam, String[] params) throws JSONException {
-        if(!TextUtils.isEmpty(params[1])) {
-            jsonParam.put("name", params[1]);
-        }
-        if(!TextUtils.isEmpty(params[2])) {
-            jsonParam.put("description", params[2]);
-        }
-        if(!TextUtils.isEmpty(params[3])) {
-            jsonParam.put("country", params[3]);
-        }
-        if(!TextUtils.isEmpty(params[4])) {
-            jsonParam.put("type", params[4]);
-        }
-        if(!TextUtils.isEmpty(params[5])) {
-            jsonParam.put("family", params[5]);
-        }
-        if(!TextUtils.isEmpty(params[6])) {
-            jsonParam.put("alc", params[6]);
-        }
-    }
-    private void fillJsonParamsToUpdate(JSONObject jsonParam, String[] params) throws JSONException {
-        if(!TextUtils.isEmpty(params[1])) {
-            jsonParam.put("id", params[1]);
-        }
-        if(!TextUtils.isEmpty(params[2])) {
-            jsonParam.put("name", params[2]);
-        }
-        if(!TextUtils.isEmpty(params[3])) {
-            jsonParam.put("description", params[3]);
-        }
-        if(!TextUtils.isEmpty(params[4])) {
-            jsonParam.put("country", params[4]);
-        }
-        if(!TextUtils.isEmpty(params[5])) {
-            jsonParam.put("type", params[5]);
-        }
-        if(!TextUtils.isEmpty(params[6])) {
-            jsonParam.put("family", params[6]);
-        }
-        if(!TextUtils.isEmpty(params[7])) {
-            jsonParam.put("alc", params[7]);
-        }
-    }
+//    private void fillJsonParams(JSONObject jsonParam, HashMap params) throws JSONException {
+//        if(!TextUtils.isEmpty(params[1])) {
+//            jsonParam.put("name", params[1]);
+//        }
+//        if(!TextUtils.isEmpty(params[2])) {
+//            jsonParam.put("description", params[2]);
+//        }
+//        if(!TextUtils.isEmpty(params[3])) {
+//            jsonParam.put("country", params[3]);
+//        }
+//        if(!TextUtils.isEmpty(params[4])) {
+//            jsonParam.put("type", params[4]);
+//        }
+//        if(!TextUtils.isEmpty(params[5])) {
+//            jsonParam.put("family", params[5]);
+//        }
+//        if(!TextUtils.isEmpty(params[6])) {
+//            jsonParam.put("alc", params[6]);
+//        }
+//    }
+
+//    private void fillJsonParamsToUpdate(JSONObject jsonParam, HashMap params) throws JSONException {
+//        if (params.get("id") != null) {
+//            jsonParam.put("id", params.get("id"));
+//        }
+//        if (params.get("nombre") != null) {
+//            jsonParam.put("name", params.get("name"));
+//        }
+//        if (params.get("id") != null) {
+//            jsonParam.put("id", params.get("id"));
+//        }
+//        if (params.get("id") != null) {
+//            jsonParam.put("id", params.get("id"));
+//        }
+//        if (params.get("id") != null) {
+//            jsonParam.put("id", params.get("id"));
+//        }
+//        if (params.get("id") != null) {
+//            jsonParam.put("id", params.get("id"));
+//        }
+//        if (params.get("id") != null) {
+//            jsonParam.put("id", params.get("id"));
+//        }
+//        if (params.get("id") != null) {
+//            jsonParam.put("id", params.get("id"));
+//        }
+//        if (!TextUtils.isEmpty(nombre.getText().toString())) {
+//            jsonParam.put("name", nombre.getText().toString());
+//        }
+//        if (!TextUtils.isEmpty(description.getText().toString())) {
+//            jsonParam.put("description", description.getText().toString());
+//        }
+//        if (!TextUtils.isEmpty(pais.getText().toString())) {
+//            jsonParam.put("country", pais.getText().toString());
+//        }
+//        if (!TextUtils.isEmpty(tipo.getText().toString())) {
+//            jsonParam.put("type", tipo.getText().toString());
+//        }
+//        if (!TextUtils.isEmpty(familia.getText().toString())) {
+//            jsonParam.put("family", familia.getText().toString());
+//        }
+//        if (!TextUtils.isEmpty(alc.getText().toString())) {
+//            jsonParam.put("alc", alc.getText().toString());
+//        }
+//    }
 
 }

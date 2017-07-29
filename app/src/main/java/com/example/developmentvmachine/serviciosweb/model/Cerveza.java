@@ -1,5 +1,7 @@
 package com.example.developmentvmachine.serviciosweb.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.math.BigDecimal;
 
 /**
@@ -15,6 +17,9 @@ public class Cerveza {
     private String type;
     private String family;
     private BigDecimal alc;
+
+    @JsonProperty("image")
+    private String imagePath;
 
     public int getId() {
         return id;
@@ -70,6 +75,14 @@ public class Cerveza {
 
     public void setAlc(BigDecimal alc) {
         this.alc = alc;
+    }
+
+    public String getImagePath() {
+        return imagePath;
+    }
+
+    public void setImagePath(String imagePath) {
+        this.imagePath = imagePath;
     }
 
     @Override
