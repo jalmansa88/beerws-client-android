@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    tools:context="com.example.developmentvmachine.serviciosweb.activities.FindByIdActivity">
+
+    <TextView
+        android:id="@+id/tvFindIdText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="@string/insert_beer_id_to_find"/>
+
+    <EditText
+        android:id="@+id/etIdActivity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="number"
+        android:hint="@string/beer_id_hint"
+        tools:layout_editor_absoluteX="84dp"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="8dp"/>
+
+    <Button
+        android:id="@+id/buttonFind"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/findByIdButton"/>
+
+    <ListView
+        android:id="@+id/findByIdListView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:layout_editor_absoluteX="128dp"
+        tools:layout_editor_absoluteY="76dp"/>
+</LinearLayout>

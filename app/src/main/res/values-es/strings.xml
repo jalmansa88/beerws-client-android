@@ -18,4 +18,7 @@
     <string name="delete_success">Cerveza eliminada correctamente</string>
     <string name="error_delete">Eror eliminando cerveza</string>
     <string name="button_show_all">Mostrar todas las cervezas</string>
+    <string name="beer_id_hint">Beer ID. I.e.: 6</string>
+    <string name="insert_beer_id_to_find">Insert Beer ID to find</string>
+    <string name="findByIdButton">Find!</string>
 </resources>

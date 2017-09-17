@@ -14,17 +14,27 @@ public class MainMenuActivity extends AppCompatActivity {
     private CervezasServiceImpl serviceImpl = new CervezasServiceImpl(this);
 
     Button showAllButton;
+    Button findByIdButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_menu);
 
+        findByIdButton = (Button)findViewById(R.id.btFindById);
         showAllButton = (Button)findViewById(R.id.btShowAll);
+
         showAllButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(v.getContext(), GetAllActivity.class));
+            }
+        });
+
+        findByIdButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(view.getContext(), FindByIdActivity.class));
             }
         });
     }

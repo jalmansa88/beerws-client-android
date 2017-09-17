@@ -17,4 +17,8 @@
     <string name="delete_success">Delete Success!</string>
     <string name="error_delete">Error removing beer!</string>
     <string name="button_show_all">Show All</string>
+    <string name="find_by_id">Find by ID</string>
+    <string name="beer_id_hint">Beer ID. I.e.: 6</string>
+    <string name="insert_beer_id_to_find">Insert Beer ID to find</string>
+    <string name="findByIdButton">Find!</string>
 </resources>

@@ -65,7 +65,7 @@ public class CervezasServiceImpl implements CervezasService {
                     toast.show();
 
                     List<Cerveza> cervezaArrayList = wsResponse.getCervezas();
-                    BeerAdapter adapter = new BeerAdapter(context, cervezaArrayList);;
+                    BeerAdapter adapter = new BeerAdapter(context, cervezaArrayList);
 
                     ListView beerListView = (ListView)context.findViewById(R.id.beersListView);
 
@@ -84,12 +84,15 @@ public class CervezasServiceImpl implements CervezasService {
 
     @Override
     public void getById(int id) {
+        Log.i(TAG, "GetById - init");
         HttpClient httpClient = new HttpClient(new CallBackService() {
                 @Override
                 public void callback(String response) {
                     WSCervezasResponse wsResponse = null;
                     ObjectMapper mapper = new ObjectMapper();
+                    ListView beerListView;
                     String toastMsg = "";
+                    beerListView = (ListView)context.findViewById(R.id.findByIdListView);
                     try{
                         wsResponse = mapper.readValue(response, WSCervezasResponse.class);
 
@@ -98,19 +101,18 @@ public class CervezasServiceImpl implements CervezasService {
 
                             if (cervezas != null && cervezas.size() == 1){
                                 toastMsg = context.getString(R.string.beer_found);
-                                fillBeerFields(wsResponse.getCervezas().get(0));
-                                ImageView imageView = (ImageView) context.findViewById(R.id.ivImagen);
-                                String imageUrl = Constants.BASE_URL + "/" + wsResponse.getCervezas().get(0).getImagePath();
-                                Glide.with(context)
-                                        .load(imageUrl)
-                                        .crossFade()
-                                        .error(android.R.drawable.ic_menu_report_image)
-                                        .into(imageView);
+                                List<Cerveza> cervezaArrayList = wsResponse.getCervezas();
+
+                                BeerAdapter adapter = new BeerAdapter(context, cervezaArrayList);
+
+                                beerListView.setAdapter(adapter);
                             }else{
                                 toastMsg = String.format(context.getString(R.string.more_than_one_id), cervezas.get(0).getId());
+                                beerListView.setAdapter(null);
                             }
                         } else if(Constants.STATUS_NOK.equals(wsResponse.getStatus())) {
                             toastMsg = wsResponse.getMensaje();
+                            beerListView.setAdapter(null);
                             Log.i(TAG, wsResponse.getMensaje());
                         }
                         Toast toast = Toast.makeText(context, toastMsg, Toast.LENGTH_SHORT);
@@ -118,7 +120,7 @@ public class CervezasServiceImpl implements CervezasService {
                     } catch (IOException e) {
                         Log.e(TAG, e.getMessage(), e);
                     }
-                    Log.i(TAG, "GetAll - end");
+                    Log.i(TAG, "GetById - end");
                 }
             },
             null,
