@@ -1,6 +1,9 @@
 package com.example.developmentvmachine.serviciosweb.services;
 
+import com.example.developmentvmachine.serviciosweb.model.Cerveza;
+
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Created by Development VMachine on 24/04/2017.

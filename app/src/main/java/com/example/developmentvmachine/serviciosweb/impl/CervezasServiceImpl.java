@@ -1,6 +1,8 @@
 package com.example.developmentvmachine.serviciosweb.impl;
 
 import android.app.Activity;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -9,6 +11,7 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.example.developmentvmachine.serviciosweb.R;
+import com.example.developmentvmachine.serviciosweb.activities.GetAllActivity;
 import com.example.developmentvmachine.serviciosweb.model.Cerveza;
 import com.example.developmentvmachine.serviciosweb.model.WSCervezasResponse;
 import com.example.developmentvmachine.serviciosweb.services.CallBackService;
@@ -32,6 +35,8 @@ public class CervezasServiceImpl implements CervezasService {
 
     private Activity context;
 
+    private List<Cerveza> cervezasList;
+
     EditText id = null;
     EditText nombre = null;
     EditText description = null;
@@ -39,6 +44,9 @@ public class CervezasServiceImpl implements CervezasService {
     EditText familia = null;
     EditText tipo = null;
     EditText alc = null;
+    EditText etFilter;
+
+    BeerAdapter adapter;
 
     public CervezasServiceImpl(Activity context) {
         this.context = context;
@@ -64,12 +72,31 @@ public class CervezasServiceImpl implements CervezasService {
                     Toast toast = Toast.makeText(context, toastMsg, Toast.LENGTH_SHORT);
                     toast.show();
 
-                    List<Cerveza> cervezaArrayList = wsResponse.getCervezas();
-                    BeerAdapter adapter = new BeerAdapter(context, cervezaArrayList);
+                    cervezasList = wsResponse.getCervezas();
+
+                    adapter = new BeerAdapter(context, cervezasList);
 
                     ListView beerListView = (ListView)context.findViewById(R.id.beersListView);
+                    etFilter = (EditText)context.findViewById(R.id.etFilterBeer);
 
                     beerListView.setAdapter(adapter);
+
+                    etFilter.addTextChangedListener(new TextWatcher() {
+                        @Override
+                        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                        }
+
+                        @Override
+                        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                            adapter.getFilter().filter(charSequence);
+                        }
+
+                        @Override
+                        public void afterTextChanged(Editable editable) {
+
+                        }
+                    });
 
                 } catch (IOException e) {
                     Log.e(TAG, e.getMessage(), e);
@@ -79,6 +106,7 @@ public class CervezasServiceImpl implements CervezasService {
         null,
         Constants.HTTP_GET
         );
+
         httpClient.execute(Constants.GET_ALL);
     }
 

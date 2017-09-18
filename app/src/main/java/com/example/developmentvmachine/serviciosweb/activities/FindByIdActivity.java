@@ -29,12 +29,17 @@ public class FindByIdActivity extends AppCompatActivity {
         findButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(TextUtils.isEmpty(findButton.getText())){
+                if(editTextBeerId.getText() == null
+                    || !validIdValue(Integer.parseInt(editTextBeerId.getText().toString()))){
                     Toast toast = Toast.makeText(getApplicationContext(), "Insert Beer ID", Toast.LENGTH_SHORT);
                 }else{
                     serviceImpl.getById(Integer.parseInt(editTextBeerId.getText().toString()));
                 }
             }
         });
+    }
+
+    private boolean validIdValue(Integer id) {
+        return (id == null ? false : id > 0);
     }
 }

@@ -21,4 +21,5 @@
     <string name="beer_id_hint">Beer ID. I.e.: 6</string>
     <string name="insert_beer_id_to_find">Insert Beer ID to find</string>
     <string name="findByIdButton">Find!</string>
+    <string name="filter_name">Type name to search</string>
 </resources>

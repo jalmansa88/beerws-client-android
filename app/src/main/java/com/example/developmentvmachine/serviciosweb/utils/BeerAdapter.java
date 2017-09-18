@@ -5,6 +5,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -13,26 +15,29 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.example.developmentvmachine.serviciosweb.R;
 import com.example.developmentvmachine.serviciosweb.model.Cerveza;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by Development VMachine on 28/07/2017.
  */
 
-public class BeerAdapter extends BaseAdapter {
+public class BeerAdapter extends BaseAdapter implements Filterable {
 
     private List<Cerveza> beerList;
+    private List<Cerveza> filteredBeerList;
     private Context context;
     private LayoutInflater inflater;
 
     public BeerAdapter(Context context, List<Cerveza> beerList) {
         this.beerList = beerList;
         this.context = context;
+        this.filteredBeerList = beerList;
     }
 
     @Override
     public int getCount() {
-        return beerList.size();
+        return filteredBeerList.size();
     }
 
     @Override
@@ -60,19 +65,54 @@ public class BeerAdapter extends BaseAdapter {
         TextView beerAlc = (TextView) beerView.findViewById(R.id.lvAlc);
 
         Glide.with(context)
-                .load(beerList.get(position).getImagePath())
+                .load(filteredBeerList.get(position).getImagePath())
                 .crossFade()
                 .error(android.R.drawable.ic_menu_report_image)
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .into(beerImage);
 
-        beerName.setText(beerList.get(position).getName());
-        beerDesc.setText(beerList.get(position).getDescription());
-        beerCountry.setText(beerList.get(position).getCountry());
-        beerFamily.setText(beerList.get(position).getFamily());
-        beerType.setText(beerList.get(position).getType());
-        beerAlc.setText(beerList.get(position).getAlc().toString() + "%");
+        beerName.setText(filteredBeerList.get(position).getName());
+        beerDesc.setText(filteredBeerList.get(position).getDescription());
+        beerCountry.setText(filteredBeerList.get(position).getCountry());
+        beerFamily.setText(filteredBeerList.get(position).getFamily());
+        beerType.setText(filteredBeerList.get(position).getType());
+        beerAlc.setText(filteredBeerList.get(position).getAlc().toString() + "%");
 
         return beerView;
+    }
+
+    @Override
+    public Filter getFilter() {
+        Filter filter = new Filter() {
+            @Override
+            protected FilterResults performFiltering(CharSequence charSequence) {
+                FilterResults filterResults = new FilterResults();
+
+                List<Cerveza> filteredList = new ArrayList<>();
+
+                for(Cerveza beer : beerList){
+                    if(beer.getName().toLowerCase().contains(charSequence.toString())){
+                        filteredList.add(beer);
+                    }
+                }
+
+                filterResults.values = filteredList;
+                filterResults.count = filteredList.size();
+
+                return filterResults;
+            }
+
+            @Override
+            protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
+                filteredBeerList = (List<Cerveza>) filterResults.values;
+                if(filterResults.count == 0){
+                    notifyDataSetInvalidated();
+                }else {
+                    notifyDataSetChanged();
+                }
+            }
+        };
+
+        return filter;
     }
 }
